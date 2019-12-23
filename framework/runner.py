@@ -37,6 +37,7 @@ class Runner:
     def run_epochs(self, epochs=2000, steps=1000, meter=200):
         """
         Runs simulation with number of epochs.
+        :meter: decides the frequency of printing out epoch number
         :return: the average reward per epoch for every step, the optimal action percentage per epoch for every step
         """
         total_avg_rewards = [0.0] * steps

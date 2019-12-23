@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+import numpy as np
+
 
 class ActionValueEstimator:
     """
@@ -106,3 +108,35 @@ class IncrementalRewardActionValueEstimator(ActionValueEstimator):
 
     def reset(self):
         self._action_occurrence_value = {action: (0, 0.0) for action in self._action_occurrence_value}
+
+
+class ConstantStepSizeActionValueEstimator(ActionValueEstimator):
+    """
+    Similar to **IncrementalRewardActionValueEstimator**, but the step size is fixed.
+    """
+
+    def __init__(self, num_actions, alpha):
+        self._num_actions = num_actions
+        self._alpha = alpha
+        self._action_values = {}
+        self._counter = 0
+        self._total_reward = 0.0
+        for action in range(0, num_actions):
+            self._action_values[action] = 0.0
+
+    def add_reward(self, action, reward):
+        value = self._action_values[action]
+        self._action_values[action] = value + self._alpha * (reward - value)
+        self._total_reward += reward
+        self._counter += 1
+
+    def get_estimated_q_a(self):
+        return self._action_values
+
+    def get_avg_reward(self):
+        return self._total_reward / self._counter
+
+    def reset(self):
+        self._action_values = {action: 0.0 for action in self._action_values}
+        self._total_reward = 0.0
+        self._counter = 0

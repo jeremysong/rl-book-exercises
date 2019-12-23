@@ -8,7 +8,7 @@ and longer runs, say of 10,000 steps. """
 import matplotlib.pyplot as plt
 
 from framework.action_selectors import GreedyActionSelector
-from framework.action_value_estimators import AverageRewardsEstimator
+from framework.action_value_estimators import *
 from framework.rewards import RandomWalkActionReward
 from framework.runner import Runner
 
@@ -16,30 +16,30 @@ import numpy as np
 
 
 def run():
-    fig, axs = plt.subplots(2)
-
     num_actions = 10
     init_q_a = np.random.rand()
-    random_walk_action_reward = RandomWalkActionReward(init_q_a, num_actions)
-    avg_reward_estimator = AverageRewardsEstimator(num_actions)
 
-    epsilons = [0, 0.1, 0.01]
+    estimators = {
+        'avg': AverageRewardsEstimator(num_actions),
+        'incremental': IncrementalRewardActionValueEstimator(num_actions),
+        'constant_step_size': ConstantStepSizeActionValueEstimator(num_actions, 0.1)
+    }
+
+    epsilon = 0.1
     colors = ['green', 'blue', 'red']
-    steps = 100000
-    epochs = 20
+    steps = 10000
+    epochs = 200
     x = range(0, steps)
 
-    for epsilon, color in zip(epsilons, colors):
-        action_selector = GreedyActionSelector(avg_reward_estimator, epsilon)
-        runner = Runner(random_walk_action_reward, avg_reward_estimator, action_selector)
-        total_avg_rewards, optimal_action_pct = runner.run_epochs(epochs, steps)
-        axs[0].plot(x, total_avg_rewards, color=color, label="epsilon=" + str(epsilon))
-        # axs[1].plot(x, optimal_action_pct, color=color, label="epsilon=" + str(epsilon))
+    for (estimator_name, estimator), color in zip(estimators.items(), colors):
+        random_walk_action_reward = RandomWalkActionReward(init_q_a, num_actions)
+        action_selector = GreedyActionSelector(estimator, epsilon)
+        runner = Runner(random_walk_action_reward, estimator, action_selector)
+        total_avg_rewards, optimal_action_pct = runner.run_epochs(epochs, steps, meter=20)
+        plt.plot(x, total_avg_rewards, color=color, label="estimator=" + estimator_name)
 
-    axs[0].set_ylabel("Average reward")
-    # axs[1].set_ylabel('% Optimal action')
-    axs[0].legend(loc='best')
-    # axs[1].legend(loc='best')
+    plt.ylabel("Average reward")
+    plt.legend(loc='best')
     plt.show()
 
 

@@ -56,9 +56,9 @@ class RandomWalkActionReward(ActionReward):
     """
 
     def __init__(self, init_q_a, num_actions):
-        self._q_a = [init_q_a] * num_actions
-        # count number of steps have been taken
-        self._counter = 0
+        self._init_q_a = init_q_a
+        self._num_actions = num_actions
+        self._q_a = np.array([init_q_a] * num_actions)
 
     def get_reward(self, action):
         """
@@ -66,9 +66,8 @@ class RandomWalkActionReward(ActionReward):
         :return: the reward
         """
         reward = self._q_a[action]
-        variance = 0.01 ** 2 * self._counter
-        self._counter += 1
-        return np.random.randn() * np.math.sqrt(variance) + reward
+        self._q_a = np.random.randn(10) * 0.01 + self._q_a
+        return reward
 
     def get_optimal_action(self):
         """
@@ -78,4 +77,4 @@ class RandomWalkActionReward(ActionReward):
         return None
 
     def reset(self):
-        self._counter = 0
+        self._q_a = np.array([self._init_q_a] * self._num_actions)
