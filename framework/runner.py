@@ -34,11 +34,11 @@ class Runner:
 
         return avg_rewards, optimal_actions
 
-    def run_epochs(self, epochs=2000, steps=1000, meter=200):
+    def run_epochs(self, epochs=2000, steps=1000, meter=200, **kwargs):
         """
-        Runs simulation with number of epochs.
-        :meter: decides the frequency of printing out epoch number
-        :return: the average reward per epoch for every step, the optimal action percentage per epoch for every step
+        Runs simulation with number of epochs. :meter: decides the frequency of printing out epoch number 
+        :aggregator: 'avg_per_step' returns the average reward per epoch for every step, the optimal action 
+        percentage per epoch for every step. 'trailing_steps' returns the average rewards of the trailing N stpes, specificed by 'trailing_steps' 
         """
         total_avg_rewards = [0.0] * steps
         total_optimal_actions = [0] * steps
@@ -50,4 +50,9 @@ class Runner:
             total_avg_rewards = [x + y for x, y in zip(total_avg_rewards, avg_rewards)]
             total_optimal_actions = [x + y for x, y in zip(total_optimal_actions, optimal_actions)]
 
-        return np.array(total_avg_rewards) / epochs, np.array(total_optimal_actions) / epochs
+        aggregator_type = kwargs.get('aggregator')
+        if aggregator_type is None or aggregator_type == 'avg_per_step':
+            return np.array(total_avg_rewards) / epochs, np.array(total_optimal_actions) / epochs
+        elif aggregator_type == 'trailing_avg':
+            trailing_steps = kwargs.get('trailing_steps')
+            return sum(total_avg_rewards[-trailing_steps:]) / trailing_steps / epochs
