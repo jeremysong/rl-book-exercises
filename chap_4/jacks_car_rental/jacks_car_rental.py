@@ -14,6 +14,9 @@ moved from one location to the other in one night. """
 
 import numpy as np
 
+from chap_4.jacks_car_rental.policy_iteration import PolicyIteration
+from chap_4.jacks_car_rental.rental_policy import RentalPolicy
+
 
 class RentalLocation:
     def __init__(self, request_rate, return_rate, max_cars=20):
@@ -37,3 +40,14 @@ class RentalLocation:
     def return_cars(self, avail_cars):
         num_returns = np.random.poisson(self._request_rate)
         return min(self._max_cars, avail_cars + num_returns)
+
+
+if __name__ == '__main__':
+    rental_policy = RentalPolicy()
+    print(rental_policy.get_state_values())
+    print(rental_policy.get_policy())
+    policy_iteration = PolicyIteration(rental_policy)
+
+    policy_iteration.evaluate()
+    print(rental_policy.get_state_values())
+    print("Optimal policy {}".format(rental_policy.get_policy()))
