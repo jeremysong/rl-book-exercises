@@ -49,7 +49,7 @@ class GamblerPolicy:
 
 
 class PolicyIteration:
-    def __init__(self, gambler_policy, threshold=0.00000001, gamma=0.95):
+    def __init__(self, gambler_policy, threshold=1e-10, gamma=0.95):
         self._threshold = threshold
         self._gamma = gamma
         self._gambler_policy = gambler_policy
@@ -94,7 +94,7 @@ class PolicyIteration:
 
 if __name__ == "__main__":
     gambler_policy = GamblerPolicy(0.4)
-    policy_iteration = PolicyIteration(gambler_policy)
+    policy_iteration = PolicyIteration(gambler_policy, gamma=1)
     optimal_policy = policy_iteration.get_optimal_policy()
     state_value = policy_iteration.state_value
 
